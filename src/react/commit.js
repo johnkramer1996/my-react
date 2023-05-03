@@ -16,7 +16,6 @@ export function commitRoot(root) {
 
   root.finishedWork = null
   root.finishedExpirationTime = NoWork
-  root.callbackExpirationTime = NoWork
   root.callbackNode = null
 
   if (root === workInProgressRoot) {
@@ -48,9 +47,9 @@ export function commitRoot(root) {
     nextEffect = firstEffect
     commitBeforeMutationEffects()
     nextEffect = firstEffect
-    commitMutationEffects(expirationTime)
+    commitMutationEffects()
     nextEffect = firstEffect
-    commitLayoutEffects(expirationTime)
+    commitLayoutEffects()
 
     root.current = finishedWork
     nextEffect = null
@@ -72,7 +71,7 @@ export function commitRoot(root) {
     }
   }
 
-  ensureRootIsScheduled(root, true)
+  //ensureRootIsScheduled(root)
   flushSyncCallbackQueue()
   return null
 }

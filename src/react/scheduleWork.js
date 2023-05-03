@@ -20,13 +20,30 @@ export function scheduleWork(fiber, expirationTime) {
   }
 }
 
-export function ensureRootIsScheduled(root, reset = false) {
-  if (reset) {
-    root.callbackNode = null
+export function ensureRootIsScheduled(root) {
+  var lastExpiredTime = root.lastExpiredTime
+
+  if (lastExpiredTime !== NoWork) {
+    root.callbackExpirationTime = Sync
+    root.callbackPriority = ImmediatePriority
+    root.callbackNode = requestIdleCallback(performSyncWorkOnRoot.bind(null, root))
+    return
+  }
+
+  var expirationTime = Sync
+  var existingCallbackNode = root.callbackNode
+  if (expirationTime === NoWork) {
+    if (existingCallbackNode !== null) {
+      root.callbackNode = null
+      root.callbackExpirationTime = NoWork
+      root.callbackPriority = NoPriority
+    }
 
     return
   }
+
   if (root.callbackNode !== null) return
+  root.callbackExpirationTime = expirationTime
   root.callbackNode = scheduleSyncCallback(performSyncWorkOnRoot.bind(null, root))
 }
 
