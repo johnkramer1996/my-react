@@ -3,8 +3,7 @@ var didWarnStateUpdateForUnmountedComponent = {}
 function warnNoop(publicInstance, callerName) {
   {
     var _constructor = publicInstance.constructor
-    var componentName =
-      (_constructor && (_constructor.displayName || _constructor.name)) || 'ReactClass'
+    var componentName = (_constructor && (_constructor.displayName || _constructor.name)) || 'ReactClass'
     var warningKey = componentName + '.' + callerName
 
     if (didWarnStateUpdateForUnmountedComponent[warningKey]) {
@@ -60,20 +59,13 @@ export function Component(props, context, updater) {
 Component.prototype.isReactComponent = {}
 
 Component.prototype.setState = function (partialState, callback) {
-  if (
-    !(
-      typeof partialState === 'object' ||
-      typeof partialState === 'function' ||
-      partialState == null
-    )
-  ) {
+  if (!(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null)) {
     {
       throw Error(
         'setState(...): takes an object of state variables to update or a function which returns an object of state variables.',
       )
     }
   }
-
   this.updater.enqueueSetState(this, partialState, callback, 'setState')
 }
 

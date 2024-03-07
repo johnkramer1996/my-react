@@ -2,13 +2,7 @@ import { shallowEqual } from './React'
 import { bailoutOnAlreadyFinishedWork } from './beginWork'
 import { reconcileChildren } from './reconcileChildren'
 import { scheduleWork } from './scheduleWork'
-import {
-  cloneUpdateQueue,
-  createUpdate,
-  enqueueUpdate,
-  initializeUpdateQueue,
-  processUpdateQueue,
-} from './update'
+import { cloneUpdateQueue, createUpdate, enqueueUpdate, initializeUpdateQueue, processUpdateQueue } from './update'
 
 var emptyContextObject = {}
 
@@ -22,18 +16,10 @@ function set(key, value) {
   key._reactInternalFiber = value
 }
 
-/**
- * constructClassInstance
- * adoptClassInstance
- * mountClassInstance
- * finishClassComponent
- */
-
 export function constructClassInstance(workInProgress, ctor, props) {
   var context = emptyContextObject
   var instance = new ctor(props, context)
-  workInProgress.memoizedState =
-    instance.state !== null && instance.state !== undefined ? instance.state : null
+  workInProgress.memoizedState = instance.state !== null && instance.state !== undefined ? instance.state : null
   adoptClassInstance(workInProgress, instance)
 
   return instance
@@ -124,10 +110,7 @@ export function mountClassInstance(workInProgress, ctor, newProps, renderExpirat
   processUpdateQueue(workInProgress, newProps, instance, renderExpirationTime)
   instance.state = workInProgress.memoizedState
 
-  if (
-    typeof instance.UNSAFE_componentWillMount === 'function' ||
-    typeof instance.componentWillMount === 'function'
-  ) {
+  if (typeof instance.UNSAFE_componentWillMount === 'function' || typeof instance.componentWillMount === 'function') {
     callComponentWillMount(workInProgress, instance)
 
     processUpdateQueue(workInProgress, newProps, instance, renderExpirationTime)
@@ -148,8 +131,7 @@ export function finishClassComponent(
   renderExpirationTime,
 ) {
   markRef(current, workInProgress)
-  if (!shouldUpdate)
-    return bailoutOnAlreadyFinishedWork(current, workInProgress, renderExpirationTime)
+  if (!shouldUpdate) return bailoutOnAlreadyFinishedWork(current, workInProgress, renderExpirationTime)
 
   var instance = workInProgress.stateNode
   var nextChildren = instance.render()
@@ -168,15 +150,7 @@ function adoptClassInstance(workInProgress, instance) {
   set(instance, workInProgress)
 }
 
-function checkShouldComponentUpdate(
-  workInProgress,
-  ctor,
-  oldProps,
-  newProps,
-  oldState,
-  newState,
-  nextContext,
-) {
+function checkShouldComponentUpdate(workInProgress, ctor, oldProps, newProps, oldState, newState, nextContext) {
   var instance = workInProgress.stateNode
 
   if (typeof instance.shouldComponentUpdate === 'function')

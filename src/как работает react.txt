@@ -1,0 +1,99 @@
+1. render 
+    createFiberRoot 
+        create FiberRootNode 
+        create FiberNode{tag: RootNode}
+        Рут єто FiberRootNode{current: FiberNode{tag: RootNode}, containerInfo: #root, finishedWork: FiberNode}
+            current -> {pendingProps: App, stateNode: FiberRootNode}
+            containerInfo -> div
+            finishedWork -> WorkInprogress -> FiberNode{tag: RootNode}
+2. updateContainer 
+    Получить FiberNode{tag: RootNode} и поставить его на обновление в обобшеную функциию всех одновлнеи 
+    Привязать App // fiberNode.pendingProps = { children }
+3. scheduleUpdateOnFiber 
+    Получить FiberRootNode
+4. performSyncWorkOnRoot
+    1 prepareFreshStack
+        Создать workInProgress для FiberNode{tag: RootNode}
+    2 workLoopSync
+        Пока есть workInProgress!==null віполнить performUnitOfWork
+        1 performUnitOfWork
+            Пока не дойдем до конца віплять beginwork 
+            1 beginWork
+                1.  updateHostRoot
+                    updateHostComponent
+                        Все они визивают reconcileChildren
+                            У рута всегда есть current
+                            mountChildFibers
+                                Если нет родитель, значит он добавился на єтом рендери ,и не нужно добавилять ноду отдельно 
+                            reconcileChildFibers
+                                Если есть родитель, значит нужно добавить отдельно 
+                                Создать App и его разместить на размещение и только(Потомучто только у app есть родитель при первом рендере. 
+                                    т.к FiberNode.Root дублируеться в prepareFrashStack) его остальніе просто добавляеться в APP
+                updateHostText
+                    null 
+            2 completeUnitOfWork
+                Виполяеться когда дошли до последнего ПЕРВОГО ребенка 
+                1. completeWork
+                    1. HostComponent
+                        1. updateHostComponent$1
+                            markUpdate
+                                effectTag
+                            markRef$1
+                                effectTag
+                        2.  1. appendAllChildren
+                            2. finalizeInitialChildren
+                                setInitialProperties
+                                    setInitialDOMProperties
+                                markRef$1
+                                    effectTag
+                    2. HostText
+                        1. 
+                            1. markUpdate 
+                                effectTag
+
+                2. Все єффекті записать 
+                3. Если есть брат то вернуть назад в biginWork 
+                4. Если достигли рута(WorkInprogress.returnFiber === null) то віход 
+    3 finishSyncRender
+        1. workInProgressRoot = null
+        2. commitRoot
+            1. commitMutationEffects
+                1. Placement
+                    1. commitPlacement
+                        1. commitPlacement
+                            1. getHostParentFiber
+                            2. appendPlacementNode
+                                Если функция спускаемся ниже через рукурсию и добавлем также братьев 
+                                По сути тоже самое что и appendAllChildren но добавляеться только если уже біл родитель, добавляет всех детей 
+                                Оптимизация работает в reconcileChildren
+                    2. commitWork
+                        В єтой версии не работает 
+                2. PlacementAndUpdate
+                3. Update
+                4. Deletion
+
+1. render
+    Создает роот и ставит на обновление 
+2. scheduleWork
+    Ставит обновление в очередь. Работает с асинхроностью 
+3. ensureRootIsScheduled
+
+Упрощено 
+3. Подготовить стек -> Создать брата для FiberNode{tag: RootNode} и запустить весь процесс. FiberRootNode всегда один
+4. Работаем как поиск в глубину, братьев не трогаем
+    Здесь ми работаем с детьмі 
+    Здесь ми помечаем на размещение и просхоидт Оптимизация если родителя нет значит от добавить на след. шаге
+5. Когда доходим до последнего первого ребенка с ним работаем дольше  
+    Здесь ми помечаем на обновление и ref
+    Создаем ноді 
+    Добавляем всех деней
+    Добавляем свойства  
+    Добавляем еффекті в связной список 
+    И если есть брат то вернуть его в begin work для пометки на размещение(если нужно) и проход его детей
+    Виход когда достигли root
+6. Закоминит измениния 
+    1. поставить useEffect на оложенное віполнение  
+    2. Добавить в дом 
+        Обновить свойство 
+        удолаить ноду 
+    3. запусить useLayoutEffect

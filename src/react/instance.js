@@ -7,6 +7,7 @@ export function createTextInstance(text, rootContainerInstance, internalInstance
   return textNode
 }
 
+//!! completeWork->created node 1
 export function createInstance(type, props, rootContainerInstance, internalInstanceHandle) {
   const domElement = document.createElement(type)
   precacheFiberNode(internalInstanceHandle, domElement)
@@ -14,6 +15,7 @@ export function createInstance(type, props, rootContainerInstance, internalInsta
   return domElement
 }
 
+//!! completeWork->created node 3
 export function finalizeInitialChildren(domElement, type, props, rootContainerInstance) {
   setInitialProperties(domElement, type, props, rootContainerInstance)
 }
@@ -26,6 +28,7 @@ export function appendChild(parentInstance, child) {
   parentInstance.appendChild(child)
 }
 
+//!! completeWork->created node 2
 export function appendAllChildren(parent, workInProgress) {
   var node = workInProgress.child
   while (node !== null) {
@@ -43,10 +46,12 @@ export function appendAllChildren(parent, workInProgress) {
   }
 }
 
+//!! completeWork->created node 3
 function setInitialProperties(domElement, tag, props, rootContainerElement) {
   setInitialDOMProperties(tag, domElement, rootContainerElement, props)
 }
 
+//!! completeWork->created node 3. if created can setTextContent
 function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProps) {
   for (var propKey in nextProps) {
     if (!nextProps.hasOwnProperty(propKey)) continue
@@ -71,10 +76,12 @@ function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProp
   }
 }
 
+//!! completeWork->update(updateHostComponent$1)
 export function prepareUpdate(domElement, type, oldProps, newProps, rootContainerInstance) {
   return diffProperties(domElement, type, oldProps, newProps, rootContainerInstance)
 }
 
+//!! completeWork->update(updateHostComponent$1)->prepareUpdate
 function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContainerElement) {
   var updatePayload = null
   var lastProps
@@ -87,11 +94,7 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
   var styleUpdates = null
 
   for (propKey in lastProps) {
-    if (
-      nextProps.hasOwnProperty(propKey) ||
-      !lastProps.hasOwnProperty(propKey) ||
-      lastProps[propKey] == null
-    ) {
+    if (nextProps.hasOwnProperty(propKey) || !lastProps.hasOwnProperty(propKey) || lastProps[propKey] == null) {
       continue
     }
 
@@ -111,22 +114,14 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
     var nextProp = nextProps[propKey]
     var lastProp = lastProps != null ? lastProps[propKey] : undefined
 
-    if (
-      !nextProps.hasOwnProperty(propKey) ||
-      nextProp === lastProp ||
-      (nextProp == null && lastProp == null)
-    )
-      continue
+    if (!nextProps.hasOwnProperty(propKey) || nextProp === lastProp || (nextProp == null && lastProp == null)) continue
 
     if (propKey === STYLE) {
       if (nextProp) Object.freeze(nextProp)
 
       if (lastProp) {
         for (styleName in lastProp) {
-          if (
-            lastProp.hasOwnProperty(styleName) &&
-            (!nextProp || !nextProp.hasOwnProperty(styleName))
-          ) {
+          if (lastProp.hasOwnProperty(styleName) && (!nextProp || !nextProp.hasOwnProperty(styleName))) {
             if (!styleUpdates) styleUpdates = {}
 
             styleUpdates[styleName] = ''
@@ -163,17 +158,18 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
       }
     }
   }
-
   if (styleUpdates) {
     ;(updatePayload = updatePayload || []).push(STYLE, styleUpdates)
   }
   return updatePayload
 }
 
+//!! commit->commitMutationEffects->commitWort(only HostComponent)
 export function updateProperties(domElement, updatePayload, type, oldProps, newProps) {
   updateDOMProperties(domElement, updatePayload)
 }
 
+//!! commit->commitMutationEffects->commitWort(only HostComponent)->commitMutationEffects
 function updateDOMProperties(domElement, updatePayload) {
   for (var i = 0; i < updatePayload.length; i += 2) {
     var propKey = updatePayload[i]
@@ -189,6 +185,7 @@ function updateDOMProperties(domElement, updatePayload) {
   }
 }
 
+//!! commit if updated or complete if created
 export function setValueForStyles(node, styles) {
   var style = node.style
 
@@ -199,6 +196,7 @@ export function setValueForStyles(node, styles) {
   }
 }
 
+//!! commit if updated or complete if created
 export function setTextContent(node, text) {
   if (text) {
     var firstChild = node.firstChild
@@ -212,6 +210,7 @@ export function setTextContent(node, text) {
   node.textContent = text
 }
 
+//!! commit if updated or complete if created
 export function resetTextContent(domElement) {
   setTextContent(domElement, '')
 }

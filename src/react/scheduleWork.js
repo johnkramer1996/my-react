@@ -5,6 +5,7 @@ import { createWorkInProgress } from './fiber'
 
 export function scheduleWork(fiber, expirationTime) {
   var root = markUpdateTimeFromFiberToRoot(fiber, expirationTime)
+
   if (expirationTime === Sync) {
     if (
       (executionContext & LegacyUnbatchedContext) !== NoContext &&

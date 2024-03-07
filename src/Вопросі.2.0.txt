@@ -1,0 +1,17 @@
+1. Где добавляеться ref 
+    commit->commitLayoutEffects->commitAttachRef
+2. Когда віполняеться useLayoutEffect? 
+    commit->commitMutationEffects(2)->commitWork->commitHookEffectListUnmount
+    commit->commitLayoutEffects(3)->commitLifeCycles->commitHookEffectListUnmount
+
+3. Когда віполняеться useEffect? 
+    commit->commitBeforeMutationEffects->requestIdleCallback->flushPassiveEffects->commitPassiveHookEffects
+        commitHookEffectListUnmount
+        commitHookEffectListMount
+4. Как создаються fiber разніх типов 
+    Функция createFiberFromTypeAndProps
+    ClassComponent -> if function and class ReactComponent
+    IndeterminateComponent -> if function
+    HostComponent -> if string 
+    Fragment, ForwardRef, Memo, Consumer, Provider -> if created across react function 
+5. Function and class должні возвращать одного ребенка 

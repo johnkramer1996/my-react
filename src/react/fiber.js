@@ -19,6 +19,7 @@ export function createHostRootFiber() {
   return createFiber(HostRoot, null, null, ConcurrentMode | BlockingMode | StrictMode)
 }
 
+//! copy fiber or created new if current = null
 export function createWorkInProgress(current, pendingProps) {
   var workInProgress = current.alternate
   if (workInProgress === null) {
@@ -149,11 +150,11 @@ function FiberNode(tag, pendingProps, key, mode) {
   this.tag = tag // ! FunctionComponent=0/ClassComponent=1/IndeterminateComponent=2/HostRoot=3/HostComponent=6/HostText=6/Fragment=7/ForwardRef=11
   this.key = key // ! unique key
   this.elementType = null // ! for default props FuncC and ClasC
-  this.type = null // ! div, button, func
-  this.stateNode = null // ! node
+  this.type = null // ! div, button, func -> first arg createElement
+  this.stateNode = null // ! node for HostComponent and HostText and HostRoot->Root(only one)
 
-  this.return = null // ! родитель
-  this.child = null // ! первый ребенок
+  this.return = null // ! parent
+  this.child = null // ! first child
   this.sibling = null // ! сосед
   this.index = 0 // ! для сравнения
   this.ref = null //  ! ссылка на дом

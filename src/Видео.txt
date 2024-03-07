@@ -1,0 +1,35 @@
+05.03.24
+1. ReactReconciliation 
+    Есть current Tree(которое находиться в памяти) and WorkInProgres Tree(при действии пользователя)
+    Сравниваем current c WorkInProgres и вічисляем разницу между ними 
+    И в конце WorkInProgres становиться current 
+
+    Еврестический алгоритм o(n). Не лучший алгоритм, когда решение может біть сильно долгим 
+        1. разніе типи разніе деревья// current.elementType !== element.type
+        2. разработчик может указать стабильніе елементі между рендерами указав key  
+    Чтобі не создавалась новая нода можно добавить key 
+
+    Для приоритезация задац react использует 2фунции requestAnimationFrame, requestIdleCollaback
+    Реакт использует schedulerPriority
+
+2. Все ли ви знаете о реакт кей 
+    Сналала будет анмакнт потом маукнт 
+3. Что ві знаете о юзКолбек 
+    Класі создают єкземплюри и связивают обработчики собітия 
+    Используеться компоненті вішего порядка. Например connect или observer from mobx 
+
+    Основная польза не улучшение производительност в текещем комопненті, а для передачи пропа 
+06.03.24
+4. useLayoutEffect and useEffect 
+    useLayoutEffect -> commitLayoutEffects
+    useEffect -> commitBeforeMutationEffects -> requestIdleCallback
+5. Best Practices for useEffect by React Documentation
+    Функцию создать в сомом useEffect для читабельності кода и не создавании при каждом рендеренге 
+6. Первое погружение в исходники хуков (задел на будущее)
+7. createRef, setRef, useRef и зачем нужен current в ref
+8. Что выбрать: глобальные переменные или useThis()?
+    Сохраняет предідущие значение 
+    Определить в какую сторону скролит пользователь
+9. Какая настоящая цена useMemo?
+10. useMemo - исходники, альтернативное использование и мемоизация ссылки
+    useCalback = useMemo 

@@ -7,6 +7,11 @@ import {
   prepareUpdate,
 } from './instance'
 
+//!! completeUnitOfWork
+//!! 1. completeWork - update host props and mark if props changes
+//!! 2. added effect(fiber) children to returnFiber and wornInProgress(if has PerformedWork). first effect will be nested children first children
+//!! 3. pass to subling if has or pass returnFiber(parent)
+
 export function completeUnitOfWork(workInProgress) {
   do {
     var current = workInProgress.alternate
@@ -15,11 +20,7 @@ export function completeUnitOfWork(workInProgress) {
     var next = completeWork(current, workInProgress)
     if (next !== null) return next
 
-    if (workInProgress.tag === 0) {
-      console.log(workInProgress.effectTag)
-    }
     if (returnFiber !== null) {
-      // !добавить еффекты детей родителю до корня  в очередь
       if (returnFiber.firstEffect === null) returnFiber.firstEffect = workInProgress.firstEffect
       if (workInProgress.lastEffect !== null) {
         if (returnFiber.lastEffect !== null) {
@@ -28,11 +29,8 @@ export function completeUnitOfWork(workInProgress) {
         returnFiber.lastEffect = workInProgress.lastEffect
       }
 
-      // !добавить текущий файбер в очередь
       if (workInProgress.effectTag > PerformedWork) {
         if (returnFiber.lastEffect !== null) returnFiber.lastEffect.nextEffect = workInProgress
-        // ! если нет последнего то и первого
-        // ! последний добавиляеться по умолчанию
         else returnFiber.firstEffect = workInProgress
         returnFiber.lastEffect = workInProgress
       }
@@ -45,6 +43,8 @@ export function completeUnitOfWork(workInProgress) {
   return null
 }
 
+//!! 1. check if need update props hostComponent and markUpdate if props changes. updated in commitWork->commitUpdate->updateProperties
+//!! 2. or create Node(document.createElement) and add all children
 function completeWork(current, workInProgress) {
   var newProps = workInProgress.pendingProps
   switch (workInProgress.tag) {
@@ -83,12 +83,7 @@ function completeWork(current, workInProgress) {
 
       if (current !== null && workInProgress.stateNode != null)
         updateHostText$1(current, workInProgress, current.memoizedProps, newText)
-      else
-        workInProgress.stateNode = createTextInstance(
-          newText,
-          rootContainerInstance,
-          workInProgress,
-        )
+      else workInProgress.stateNode = createTextInstance(newText, rootContainerInstance, workInProgress)
       return null
     }
   }
@@ -96,6 +91,7 @@ function completeWork(current, workInProgress) {
   return null
 }
 
+//!! check if props changes
 function updateHostComponent$1(current, workInProgress, type, newProps, rootContainerInstance) {
   var oldProps = current.memoizedProps
   if (oldProps === newProps) return
@@ -110,6 +106,7 @@ function updateHostComponent$1(current, workInProgress, type, newProps, rootCont
   }
 }
 
+//!! mark update if text changes
 function updateHostText$1(current, workInProgress, oldText, newText) {
   if (oldText !== newText) markUpdate(workInProgress)
 }

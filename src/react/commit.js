@@ -274,10 +274,10 @@ function commitLifeCycles(current, finishedWork) {
 
     case ClassComponent: {
       var instance = finishedWork.stateNode
-      debugger
 
       if (finishedWork.effectTag & Update) {
         if (current === null) {
+          //!!first render
           instance.componentDidMount()
         } else {
           var prevProps = current.memoizedProps
@@ -290,6 +290,7 @@ function commitLifeCycles(current, finishedWork) {
       var updateQueue = finishedWork.updateQueue
 
       if (updateQueue !== null) {
+        //!! TODO: ??
         commitUpdateQueue(finishedWork, updateQueue, instance)
       }
 
@@ -397,6 +398,7 @@ function commitUpdateQueue(finishedWork, finishedQueue, instance) {
 
       if (callback !== null) {
         effect.callback = null
+        //!! TODO callback???
         callCallback(callback, instance)
       }
     }
