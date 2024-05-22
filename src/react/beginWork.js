@@ -151,6 +151,7 @@ function updateForwardRef(current, workInProgress, Component, nextProps) {
   return reconcileChildren(current, workInProgress, nextChildren, renderExpirationTime)
 }
 
+//! can be class or func
 function updateMemoComponent(
   current,
   workInProgress,
@@ -199,6 +200,7 @@ function updateMemoComponent(
   return newChild
 }
 
+//! if simple = Component = function
 function updateSimpleMemoComponent(
   current,
   workInProgress,
