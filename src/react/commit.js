@@ -230,6 +230,7 @@ function unmountHostComponents(current) {
     if (node.tag === HostComponent || node.tag === HostText) {
       removeChild(currentParent, node.stateNode)
     } else {
+      commitUnmount(node)
       if (node.child !== null) {
         node.child.return = node
         node = node.child
@@ -461,4 +462,38 @@ export function flushPassiveEffects() {
   executionContext = prevExecutionContext
   flushSyncCallbackQueue()
   return true
+}
+
+function commitUnmount(current$$1) {
+  switch (current$$1.tag) {
+    case FunctionComponent:
+    case ForwardRef:
+    case MemoComponent:
+    case SimpleMemoComponent: {
+      var updateQueue = current$$1.updateQueue
+      if (updateQueue !== null) {
+        var lastEffect = updateQueue.lastEffect
+        if (lastEffect !== null) {
+          var firstEffect = lastEffect.next
+          var effect = firstEffect
+          do {
+            var destroy = effect.destroy
+            if (destroy !== undefined) {
+              destroy()
+            }
+            effect = effect.next
+          } while (effect !== firstEffect)
+        }
+      }
+      break
+    }
+    case ClassComponent: {
+      safelyDetachRef(current$$1)
+      return
+    }
+    case HostComponent: {
+      safelyDetachRef(current$$1)
+      return
+    }
+  }
 }
