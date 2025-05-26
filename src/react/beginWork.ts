@@ -1,27 +1,50 @@
 import { shallowEqual } from './React'
-import { constructClassInstance, finishClassComponent, mountClassInstance, updateClassInstance } from './classComponent'
-import { createFiberFromTypeAndProps, createWorkInProgress, isSimpleFunctionComponent } from './fiber'
+import {
+  constructClassInstance,
+  finishClassComponent,
+  mountClassInstance,
+  updateClassInstance,
+} from './classComponent'
+import {
+  createFiberFromTypeAndProps,
+  createWorkInProgress,
+  FiberNode,
+  isSimpleFunctionComponent,
+} from './fiber'
 import { reconcileChildren } from './reconcileChildren'
 import { readContext, renderWithHooks } from './renderWithHooks'
 import { cloneUpdateQueue, processUpdateQueue } from './update'
 
-export function beginWork(current, workInProgress, renderExpirationTime) {
+export function beginWork(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  renderExpirationTime: number,
+) {
   var updateExpirationTime = workInProgress.expirationTime
 
   if (current !== null) {
     var oldProps = current.memoizedProps
     var newProps = workInProgress.pendingProps
 
-    if (oldProps !== newProps || workInProgress.type !== current.type);
-    else if (updateExpirationTime < renderExpirationTime) {
-      return bailoutOnAlreadyFinishedWork(current, workInProgress, renderExpirationTime)
+    if (oldProps !== newProps || workInProgress.type !== current.type) {
+    } else if (updateExpirationTime < renderExpirationTime) {
+      return bailoutOnAlreadyFinishedWork(
+        current,
+        workInProgress,
+        renderExpirationTime,
+      )
     }
   }
 
   workInProgress.expirationTime = NoWork
   switch (workInProgress.tag) {
     case IndeterminateComponent: {
-      return mountIndeterminateComponent(current, workInProgress, workInProgress.type, renderExpirationTime)
+      return mountIndeterminateComponent(
+        current,
+        workInProgress,
+        workInProgress.type,
+        renderExpirationTime,
+      )
     }
     case FunctionComponent: {
       return updateFunctionComponent(
@@ -81,16 +104,36 @@ export function beginWork(current, workInProgress, renderExpirationTime) {
     case Fragment:
       return updateFragment(current, workInProgress, renderExpirationTime)
     case ContextProvider:
-      return updateContextProvider(current, workInProgress, renderExpirationTime)
+      return updateContextProvider(
+        current,
+        workInProgress,
+        renderExpirationTime,
+      )
     case ContextConsumer:
-      return updateContextConsumer(current, workInProgress, renderExpirationTime)
+      return updateContextConsumer(
+        current,
+        workInProgress,
+        renderExpirationTime,
+      )
   }
   return null
 }
 
-function mountIndeterminateComponent(current, workInProgress, Component, renderExpirationTime) {
+function mountIndeterminateComponent(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  Component,
+  renderExpirationTime,
+) {
   var props = workInProgress.pendingProps
-  const nextChildren = renderWithHooks(current, workInProgress, Component, props, null, renderExpirationTime)
+  const nextChildren = renderWithHooks(
+    current,
+    workInProgress,
+    Component,
+    props,
+    null,
+    renderExpirationTime,
+  )
 
   workInProgress.tag = FunctionComponent
   workInProgress.effectTag |= PerformedWork
@@ -99,15 +142,34 @@ function mountIndeterminateComponent(current, workInProgress, Component, renderE
   return workInProgress.child
 }
 
-function updateFunctionComponent(current, workInProgress, Component, nextProps, renderExpirationTime) {
-  const nextChildren = renderWithHooks(current, workInProgress, Component, nextProps, null, renderExpirationTime)
+function updateFunctionComponent(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  Component,
+  nextProps: Record<string, any>,
+  renderExpirationTime: number,
+) {
+  const nextChildren = renderWithHooks(
+    current,
+    workInProgress,
+    Component,
+    nextProps,
+    null,
+    renderExpirationTime,
+  )
 
   workInProgress.effectTag |= PerformedWork
   reconcileChildren(current, workInProgress, nextChildren, renderExpirationTime)
   return workInProgress.child
 }
 
-function updateClassComponent(current, workInProgress, Component, nextProps, renderExpirationTime) {
+function updateClassComponent(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  Component,
+  nextProps: Record<string, any>,
+  renderExpirationTime: number,
+) {
   var instance = workInProgress.stateNode
   var shouldUpdate
 
@@ -119,10 +181,21 @@ function updateClassComponent(current, workInProgress, Component, nextProps, ren
       workInProgress.effectTag |= Placement
     }
     constructClassInstance(workInProgress, Component, nextProps)
-    mountClassInstance(workInProgress, Component, nextProps, renderExpirationTime)
+    mountClassInstance(
+      workInProgress,
+      Component,
+      nextProps,
+      renderExpirationTime,
+    )
     shouldUpdate = true
   } else {
-    shouldUpdate = updateClassInstance(current, workInProgress, Component, nextProps, renderExpirationTime)
+    shouldUpdate = updateClassInstance(
+      current,
+      workInProgress,
+      Component,
+      nextProps,
+      renderExpirationTime,
+    )
   }
 
   var nextUnitOfWork = finishClassComponent(
@@ -137,7 +210,13 @@ function updateClassComponent(current, workInProgress, Component, nextProps, ren
   return nextUnitOfWork
 }
 
-function updateForwardRef(current, workInProgress, Component, nextProps) {
+function updateForwardRef(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  Component,
+  nextProps: Record<string, any>,
+  renderExpirationTime: number,
+) {
   const nextChildren = renderWithHooks(
     current,
     workInProgress,
@@ -148,22 +227,31 @@ function updateForwardRef(current, workInProgress, Component, nextProps) {
   )
 
   workInProgress.effectTag |= PerformedWork
-  return reconcileChildren(current, workInProgress, nextChildren, renderExpirationTime)
+  return reconcileChildren(
+    current,
+    workInProgress,
+    nextChildren,
+    renderExpirationTime,
+  )
 }
 
 //! can be class or func
 function updateMemoComponent(
-  current,
-  workInProgress,
+  current: FiberNode,
+  workInProgress: FiberNode,
   Component,
-  nextProps,
-  updateExpirationTime,
-  renderExpirationTime,
+  nextProps: Record<string, any>,
+  updateExpirationTime: number,
+  renderExpirationTime: number,
 ) {
   if (current === null) {
     var type = Component.type
 
-    if (isSimpleFunctionComponent(type) && Component.compare === null && Component.defaultProps === undefined) {
+    if (
+      isSimpleFunctionComponent(type) &&
+      Component.compare === null &&
+      Component.defaultProps === undefined
+    ) {
       workInProgress.tag = SimpleMemoComponent
       workInProgress.type = type
 
@@ -176,24 +264,34 @@ function updateMemoComponent(
         renderExpirationTime,
       )
     }
-    var child = createFiberFromTypeAndProps(Component.type, null, nextProps, workInProgress, workInProgress.mode)
+    var child = createFiberFromTypeAndProps(
+      Component.type,
+      null,
+      nextProps,
+      workInProgress.mode,
+      renderExpirationTime,
+    )
     child.ref = workInProgress.ref
     child.return = workInProgress
     workInProgress.child = child
     return child
   }
 
-  var currentChild = current.child
+  var currentChild = current.child!
   var prevProps = currentChild.memoizedProps
   var compare = Component.compare
   compare = compare !== null ? compare : shallowEqual
 
   if (compare(prevProps, nextProps) && current.ref === workInProgress.ref) {
-    return bailoutOnAlreadyFinishedWork(current, workInProgress)
+    return bailoutOnAlreadyFinishedWork(
+      current,
+      workInProgress,
+      renderExpirationTime,
+    )
   }
 
   workInProgress.flags |= PerformedWork
-  var newChild = createWorkInProgress(currentChild, nextProps)
+  var newChild = createWorkInProgress(currentChild!, nextProps)
   newChild.ref = workInProgress.ref
   newChild.return = workInProgress
   workInProgress.child = newChild
@@ -205,7 +303,7 @@ function updateSimpleMemoComponent(
   current,
   workInProgress,
   Component,
-  nextProps,
+  nextProps: Record<string, any>,
   updateExpirationTime,
   renderExpirationTime,
 ) {
@@ -219,16 +317,31 @@ function updateSimpleMemoComponent(
     ) {
       if (updateExpirationTime < renderExpirationTime) {
         workInProgress.expirationTime = current.expirationTime
-        return bailoutOnAlreadyFinishedWork(current, workInProgress, renderExpirationTime)
+        return bailoutOnAlreadyFinishedWork(
+          current,
+          workInProgress,
+          renderExpirationTime,
+        )
       }
     }
   }
 
-  return updateFunctionComponent(current, workInProgress, Component, nextProps)
+  return updateFunctionComponent(
+    current,
+    workInProgress,
+    Component,
+    nextProps,
+    renderExpirationTime,
+  )
 }
 
 function updateFragment(current, workInProgress, renderExpirationTime) {
-  return reconcileChildren(current, workInProgress, workInProgress.pendingProps, renderExpirationTime)
+  return reconcileChildren(
+    current,
+    workInProgress,
+    workInProgress.pendingProps,
+    renderExpirationTime,
+  )
 }
 
 function updateContextProvider(current, workInProgress, renderExpirationTime) {
@@ -245,7 +358,11 @@ function updateContextProvider(current, workInProgress, renderExpirationTime) {
   return workInProgress.child
 }
 
-function updateContextConsumer(current, workInProgress, renderExpirationTime) {
+function updateContextConsumer(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  renderExpirationTime: number,
+) {
   var context = workInProgress.type
   var newProps = workInProgress.pendingProps
   var render = newProps.children
@@ -258,15 +375,32 @@ function updateContextConsumer(current, workInProgress, renderExpirationTime) {
   return workInProgress.child
 }
 
-function updateHostComponent(current, workInProgress, renderExpirationTime) {
-  return reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderExpirationTime)
+function updateHostComponent(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  renderExpirationTime: number,
+) {
+  return reconcileChildren(
+    current,
+    workInProgress,
+    workInProgress.pendingProps.children,
+    renderExpirationTime,
+  )
 }
 
-function updateHostText(current, workInProgress, renderExpirationTime) {
+function updateHostText(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  renderExpirationTime: number,
+) {
   return null
 }
 
-function updateHostRoot(current, workInProgress, renderExpirationTime) {
+function updateHostRoot(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  renderExpirationTime: number,
+) {
   var nextProps = workInProgress.pendingProps
   var prevState = workInProgress.memoizedState
   var prevChildren = prevState !== null ? prevState.element : null
@@ -276,18 +410,27 @@ function updateHostRoot(current, workInProgress, renderExpirationTime) {
   var nextState = workInProgress.memoizedState
   var nextChildren = nextState.element
   // TODO:
-  if (nextChildren === prevChildren) return bailoutOnAlreadyFinishedWork(current, workInProgress, renderExpirationTime)
+  if (nextChildren === prevChildren)
+    return bailoutOnAlreadyFinishedWork(
+      current,
+      workInProgress,
+      renderExpirationTime,
+    )
 
   reconcileChildren(current, workInProgress, nextChildren, renderExpirationTime)
   return workInProgress.child
 }
 
-export function bailoutOnAlreadyFinishedWork(current, workInProgress, renderExpirationTime) {
+export function bailoutOnAlreadyFinishedWork(
+  current: FiberNode,
+  workInProgress: FiberNode,
+  renderExpirationTime: number,
+) {
   if (workInProgress.childExpirationTime < renderExpirationTime) return null
   return cloneChildFibers(current, workInProgress)
 }
 
-function cloneChildFibers(current, workInProgress) {
+function cloneChildFibers(current: FiberNode, workInProgress: FiberNode) {
   if (workInProgress.child === null) return
 
   var currentChild = workInProgress.child
@@ -297,7 +440,10 @@ function cloneChildFibers(current, workInProgress) {
 
   while (currentChild.sibling !== null) {
     currentChild = currentChild.sibling
-    newChild = newChild.sibling = createWorkInProgress(currentChild, currentChild.pendingProps)
+    newChild = newChild.sibling = createWorkInProgress(
+      currentChild,
+      currentChild.pendingProps,
+    )
     newChild.return = workInProgress
   }
 

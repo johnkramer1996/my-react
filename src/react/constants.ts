@@ -1,3 +1,5 @@
+import { FiberNode, FiberRootNode } from './fiber'
+
 window.noTimeout = -1
 
 window.NoMode = 0
@@ -146,3 +148,155 @@ window.currentlyRenderingFiber$1 = null
 window.ReactCurrentDispatcher = { current: null }
 window.currentHook = null
 window.workInProgressHook = null
+
+declare global {
+  var noTimeout: any
+
+  var NoMode: any
+  var StrictMode: any
+
+  var BlockingMode: any
+  var ConcurrentMode: any
+  var ProfileMode: any
+
+  var MAX_SIGNED_31_BIT_INT: any
+
+  var Sync: any
+  var Batched: any
+  var UNIT_SIZE: any
+  var MAGIC_NUMBER_OFFSET: any
+
+  var fakeCallbackNode: {}
+
+  var ImmediatePriority: any
+  var UserBlockingPriority$1: any
+  var NormalPriority: any
+  var LowPriority: any
+  var IdlePriority: any // NoPriority is the absence of priority. Also React-on:yany
+
+  var NoPriority: any
+
+  var syncQueue: any
+  var immediateQueueCallbackNode: any
+  var isFlushingSyncQueue: any
+
+  var FunctionComponent: any
+  var ClassComponent: any
+  var IndeterminateComponent: any // Before we know whether it is function o: any
+  var HostRoot: any // Root of a host tree. Could be nested inside another no:eany
+  var HostPortal: any // A subtree. Could be an entry point to a different render:rany
+  var HostComponent: any
+  var HostText: any
+  var Fragment: any
+  var Mode: any
+  var ContextConsumer: any
+  var ContextProvider: any
+  var ForwardRef: any
+  var Profiler: any
+  var SuspenseComponent: any
+  var MemoComponent: any
+  var SimpleMemoComponent: any
+  var LazyComponent: any
+  var IncompleteClassComponent: any
+  var DehydratedFragment: any
+  var SuspenseListComponent: any
+  var FundamentalComponent: any
+  var ScopeComponent: any
+  var Block: any
+
+  var NoEffect: any
+  var PerformedWork: any
+  var Placement: any
+  var Update: any
+  var PlacementAndUpdate: any
+  var Deletion: any
+  var ContentReset: any
+  var Callback: any
+  var DidCapture: any
+  var Ref: any
+  var Snapshot: any
+  var Passive: any
+  var Hydrating: any
+  var HydratingAndUpdate: any
+  var LifecycleEffectMask: any
+  var HostEffectMask: any
+  var Incomplete: any
+  var ShouldCapture: any
+
+  var NoWork: any
+  var Never: any
+  var Idle: any
+  var ContinuousHydration: any
+
+  var NoContext: any
+  var BatchedContext: any
+  var EventContext: any
+  var DiscreteEventContext: any
+  var LegacyUnbatchedContext: any
+  var RenderContext: any
+  var CommitContext: any
+  var RootIncomplete: any
+  var RootFatalErrored: any
+  var RootErrored: any
+  var RootSuspended: any
+  var RootSuspendedWithDelay: any
+  var RootCompleted: any
+  var executionContext: number
+
+  var workInProgressRoot: FiberRootNode | null
+  var workInProgress: FiberNode | null
+  var renderExpirationTime$1: any
+
+  var globalMostRecentFallbackTime: any
+  var FALLBACK_THROTTLE_MS: any
+  var nextEffect: FiberNode | null
+  var hasUncaughtError: any
+  var firstUncaughtError: any
+  var legacyErrorBoundariesThatAlreadyFailed: any
+  var rootDoesHavePassiveEffects: any
+  var rootWithPendingPassiveEffects: FiberRootNode | null
+  var pendingPassiveEffectsRenderPriority: any
+  var pendingPassiveEffectsExpirationTime: any
+  var rootsWithPendingDiscreteUpdates: any
+
+  var spawnedWorkDuringRender: any
+
+  var currentEventTime: any
+
+  var LegacyRoot: any
+  var BlockingRoot: any
+  var ConcurrentRoot: any
+
+  var DANGEROUSLY_SET_INNER_HTML: any
+  var SUPPRESS_CONTENT_EDITABLE_WARNING: any
+  var SUPPRESS_HYDRATION_WARNING: any
+  var AUTOFOCUS: any
+  var CHILDREN: any
+  var STYLE: any
+  var HTML$1: any
+
+  var ELEMENT_NODE: any
+  var TEXT_NODE: any
+  var COMMENT_NODE: any
+  var DOCUMENT_NODE: any
+  var DOCUMENT_FRAGMENT_NODE: any
+
+  var UpdateState: any
+  var ReplaceState: any
+  var ForceUpdate: any
+  var CaptureUpdate: any
+  var hasForceUpdate: any
+  var currentlyProcessingQueue: any
+
+  var HasEffect: any
+  var Layout: any
+  var Passive$1: any
+
+  var renderExpirationTime: any
+  var currentlyRenderingFiber$1: any
+  var ReactCurrentDispatcher: any
+  var currentHook: any
+  var workInProgressHook: any
+}
+
+export {}

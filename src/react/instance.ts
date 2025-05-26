@@ -1,14 +1,24 @@
+import { FiberNode } from './fiber'
 import { ensureListeningTo } from './listener'
 import { registrationNameModules } from './registrationName'
 
-export function createTextInstance(text, rootContainerInstance, internalInstanceHandle) {
+export function createTextInstance(
+  text,
+  rootContainerInstance,
+  internalInstanceHandle,
+) {
   var textNode = document.createTextNode(text)
   precacheFiberNode(internalInstanceHandle, textNode)
   return textNode
 }
 
 //!! completeWork->created node 1
-export function createInstance(type, props, rootContainerInstance, internalInstanceHandle) {
+export function createInstance(
+  type,
+  props,
+  rootContainerInstance,
+  internalInstanceHandle,
+) {
   const domElement = document.createElement(type)
   precacheFiberNode(internalInstanceHandle, domElement)
   updateFiberProps(domElement, props)
@@ -16,24 +26,29 @@ export function createInstance(type, props, rootContainerInstance, internalInsta
 }
 
 //!! completeWork->created node 3
-export function finalizeInitialChildren(domElement, type, props, rootContainerInstance) {
+export function finalizeInitialChildren(
+  domElement: Element,
+  type: string,
+  props: Record<string, any>,
+  rootContainerInstance: Element,
+) {
   setInitialProperties(domElement, type, props, rootContainerInstance)
 }
 
-export function removeChild(parentInstance, child) {
+export function removeChild(parentInstance: Element, child: Element) {
   parentInstance.removeChild(child)
 }
 
-export function appendChild(parentInstance, child) {
+export function appendChild(parentInstance: Element, child: Element) {
   parentInstance.appendChild(child)
 }
 
 //!! completeWork->created node 2
-export function appendAllChildren(parent, workInProgress) {
+export function appendAllChildren(parent: Element, workInProgress: FiberNode) {
   var node = workInProgress.child
   while (node !== null) {
     if (node.tag === HostComponent || node.tag === HostText) {
-      appendChild(parent, node.stateNode)
+      appendChild(parent, node.stateNode as Element)
     } else if (node.child !== null) {
       node = node.child
       continue
@@ -52,7 +67,12 @@ function setInitialProperties(domElement, tag, props, rootContainerElement) {
 }
 
 //!! completeWork->created node 3. if created can setTextContent
-function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProps) {
+function setInitialDOMProperties(
+  tag,
+  domElement,
+  rootContainerElement,
+  nextProps,
+) {
   for (var propKey in nextProps) {
     if (!nextProps.hasOwnProperty(propKey)) continue
 
@@ -77,13 +97,31 @@ function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProp
 }
 
 //!! completeWork->update(updateHostComponent$1)
-export function prepareUpdate(domElement, type, oldProps, newProps, rootContainerInstance) {
-  return diffProperties(domElement, type, oldProps, newProps, rootContainerInstance)
+export function prepareUpdate(
+  domElement,
+  type,
+  oldProps,
+  newProps,
+  rootContainerInstance,
+) {
+  return diffProperties(
+    domElement,
+    type,
+    oldProps,
+    newProps,
+    rootContainerInstance,
+  )
 }
 
 //!! completeWork->update(updateHostComponent$1)->prepareUpdate
-function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContainerElement) {
-  var updatePayload = null
+function diffProperties(
+  domElement: Element,
+  tag: number,
+  lastRawProps: Record<string, any>,
+  nextRawProps: Record<string, any>,
+  rootContainerElement: Element,
+) {
+  var updatePayload: any[] | null = null
   var lastProps
   var nextProps
   lastProps = lastRawProps
@@ -91,10 +129,14 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
 
   var propKey
   var styleName
-  var styleUpdates = null
+  var styleUpdates: Record<string, any> | null = null
 
   for (propKey in lastProps) {
-    if (nextProps.hasOwnProperty(propKey) || !lastProps.hasOwnProperty(propKey) || lastProps[propKey] == null) {
+    if (
+      nextProps.hasOwnProperty(propKey) ||
+      !lastProps.hasOwnProperty(propKey) ||
+      lastProps[propKey] == null
+    ) {
       continue
     }
 
@@ -114,14 +156,22 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
     var nextProp = nextProps[propKey]
     var lastProp = lastProps != null ? lastProps[propKey] : undefined
 
-    if (!nextProps.hasOwnProperty(propKey) || nextProp === lastProp || (nextProp == null && lastProp == null)) continue
+    if (
+      !nextProps.hasOwnProperty(propKey) ||
+      nextProp === lastProp ||
+      (nextProp == null && lastProp == null)
+    )
+      continue
 
     if (propKey === STYLE) {
       if (nextProp) Object.freeze(nextProp)
 
       if (lastProp) {
         for (styleName in lastProp) {
-          if (lastProp.hasOwnProperty(styleName) && (!nextProp || !nextProp.hasOwnProperty(styleName))) {
+          if (
+            lastProp.hasOwnProperty(styleName) &&
+            (!nextProp || !nextProp.hasOwnProperty(styleName))
+          ) {
             if (!styleUpdates) styleUpdates = {}
 
             styleUpdates[styleName] = ''
@@ -129,7 +179,10 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
         }
 
         for (styleName in nextProp) {
-          if (nextProp.hasOwnProperty(styleName) && lastProp[styleName] !== nextProp[styleName]) {
+          if (
+            nextProp.hasOwnProperty(styleName) &&
+            lastProp[styleName] !== nextProp[styleName]
+          ) {
             if (!styleUpdates) styleUpdates = {}
 
             styleUpdates[styleName] = nextProp[styleName]
@@ -165,7 +218,13 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
 }
 
 //!! commit->commitMutationEffects->commitWort(only HostComponent)
-export function updateProperties(domElement, updatePayload, type, oldProps, newProps) {
+export function updateProperties(
+  domElement,
+  updatePayload,
+  type,
+  oldProps,
+  newProps,
+) {
   updateDOMProperties(domElement, updatePayload)
 }
 
@@ -180,7 +239,8 @@ function updateDOMProperties(domElement, updatePayload) {
     } else if (propKey === CHILDREN) {
       setTextContent(domElement, propValue)
     } else {
-      setValueForProperty(domElement, propKey, propValue)
+      debugger
+      // setValueForProperty(domElement, propKey, propValue)
     }
   }
 }
@@ -201,7 +261,11 @@ export function setTextContent(node, text) {
   if (text) {
     var firstChild = node.firstChild
 
-    if (firstChild && firstChild === node.lastChild && firstChild.nodeType === TEXT_NODE) {
+    if (
+      firstChild &&
+      firstChild === node.lastChild &&
+      firstChild.nodeType === TEXT_NODE
+    ) {
       firstChild.nodeValue = text
       return
     }
@@ -215,19 +279,20 @@ export function resetTextContent(domElement) {
   setTextContent(domElement, '')
 }
 
-export function appendPlacementNode(node, parent, append) {
-  var tag = node.tag
+export function appendPlacementNode(fiberNode, parent, append) {
+  var tag = fiberNode.tag
   var isHost = tag === HostComponent || tag === HostText
 
   if (isHost) {
-    append(parent, node.stateNode)
+    append(parent, fiberNode.stateNode)
     return
   }
-  var child = node.child
+
+  const child = fiberNode.child
   if (child !== null) {
     appendPlacementNode(child, parent, append)
-    var sibling = child.sibling
 
+    let sibling = child.sibling
     while (sibling !== null) {
       appendPlacementNode(sibling, parent, append)
       sibling = sibling.sibling
@@ -235,13 +300,15 @@ export function appendPlacementNode(node, parent, append) {
   }
 }
 
-export function getHostParentFiber(fiber) {
-  var parent = fiber.return
+export function getHostParentFiber(fiber: FiberNode) {
+  let parent = fiber.return
 
   while (parent !== null) {
     if (isHostParent(parent)) return parent
     parent = parent.return
   }
+
+  throw new Error('host parent not found for fiber' + fiber)
 }
 
 export function getPublicInstance(instance) {

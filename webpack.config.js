@@ -8,13 +8,29 @@ module.exports = {
       template: './src/index.html',
     }),
   ],
-  entry: './src/index.js',
-  devtool: 'source-map',
+  entry: './src/index.ts',
+  devtool: 'inline-source-map',
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
   devServer: {
-    hot: true,
+    open: true,
+    static: {
+      directory: path.join(__dirname, 'public'),
+    },
+    compress: true,
   },
 }

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "ES5",
+    "module": "commonjs",
+    "rootDir": "./",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "lib": ["esnext", "dom"],
+    "allowJs": true
+  },
+  "include": ["./src/**/*"],
+  "exclude": [
+    "./public/**/*",
+    "./dist/**/*" // This is what fixed it!
+  ]
+}

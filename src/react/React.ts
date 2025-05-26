@@ -2,13 +2,23 @@ export var hasSymbol = typeof Symbol === 'function' && Symbol.for
 export var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7
 export var REACT_PROVIDER_TYPE = Symbol.for('react.provider')
 export var REACT_CONTEXT_TYPE = Symbol.for('react.context')
-export var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0
-export var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb
+export var REACT_FORWARD_REF_TYPE = hasSymbol
+  ? Symbol.for('react.forward_ref')
+  : 0xead0
+export var REACT_FRAGMENT_TYPE = hasSymbol
+  ? Symbol.for('react.fragment')
+  : 0xeacb
 export var REACT_MEMO_TYPE = Symbol.for('react.memo')
 
-export function createElement(type, config, ...children) {
+export type ReactType = string | Function | typeof REACT_FRAGMENT_TYPE
+
+export function createElement(
+  type: ReactType,
+  config?: Record<string, any> | null,
+  ...children: any[]
+) {
   let props = {}
-  let key = null
+  let key: string | null = null
   let ref = null
 
   if (config != null) {
@@ -31,14 +41,14 @@ export function createElement(type, config, ...children) {
   return ReactElement(type, key, ref, props)
 }
 
-export function forwardRef(render) {
+export function forwardRef(render: Function) {
   return {
     $$typeof: REACT_FORWARD_REF_TYPE,
     render: render,
   }
 }
 
-export function memo(type, compare) {
+export function memo(type: ReactType, compare: Function | null) {
   var elementType = {
     $$typeof: REACT_MEMO_TYPE,
     type: type,
@@ -48,12 +58,20 @@ export function memo(type, compare) {
   return elementType
 }
 
-export function shallowEqual(objA, objB) {
+export function shallowEqual(
+  objA: Record<string, any>,
+  objB: Record<string, any>,
+) {
   if (Object.is(objA, objB)) {
     return true
   }
 
-  if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
+  if (
+    typeof objA !== 'object' ||
+    objA === null ||
+    typeof objB !== 'object' ||
+    objB === null
+  ) {
     return false
   }
 
@@ -65,7 +83,10 @@ export function shallowEqual(objA, objB) {
   } // Test for A's keys different from B.
 
   for (var i = 0; i < keysA.length; i++) {
-    if (!Object.prototype.hasOwnProperty.call(objB, keysA[i]) || !Object.is(objA[keysA[i]], objB[keysA[i]])) {
+    if (
+      !Object.prototype.hasOwnProperty.call(objB, keysA[i]) ||
+      !Object.is(objA[keysA[i]], objB[keysA[i]])
+    ) {
       return false
     }
   }
@@ -73,7 +94,10 @@ export function shallowEqual(objA, objB) {
   return true
 }
 
-export function createContext(defaultValue, calculateChangedBits) {
+export function createContext(
+  defaultValue: any,
+  calculateChangedBits?: number | null,
+) {
   if (calculateChangedBits === undefined) {
     calculateChangedBits = null
   }
@@ -88,6 +112,7 @@ export function createContext(defaultValue, calculateChangedBits) {
     Provider: null,
     Consumer: null,
   }
+  // @ts-ignore
   context.Provider = {
     $$typeof: REACT_PROVIDER_TYPE,
     _context: context,
@@ -139,18 +164,35 @@ export function createContext(defaultValue, calculateChangedBits) {
     },
     displayName: {
       get: function () {
+        // @ts-ignore
         return context.displayName
       },
       set: function (displayName) {},
     },
   })
 
+  // @ts-ignore
   context.Consumer = Consumer
 
   return context
 }
 
-function ReactElement(type, key, ref, props) {
+export type ReactNode = ReactElement | 'string'
+
+export interface ReactElement {
+  $$typeof: number | symbol
+  type: ReactType
+  key: string | null
+  ref: any
+  props: Record<string, any>
+}
+
+function ReactElement(
+  type: ReactType,
+  key: string | null,
+  ref: any,
+  props: Record<string, any>,
+) {
   return {
     $$typeof: REACT_ELEMENT_TYPE,
     type: type,
@@ -160,24 +202,23 @@ function ReactElement(type, key, ref, props) {
   }
 }
 
-function hasValidKey(config) {
-  {
-    if (hasOwnProperty.call(config, 'key')) {
-      var getter = Object.getOwnPropertyDescriptor(config, 'key').get
-
-      if (getter && getter.isReactWarning) {
-        return false
-      }
+function hasValidKey(config: Record<string, any>) {
+  if (window.hasOwnProperty.call(config, 'key')) {
+    var getter = Object.getOwnPropertyDescriptor(config, 'key')?.get
+    // @ts-ignore
+    if (getter && getter.isReactWarning) {
+      return false
     }
   }
 
   return config.key !== undefined
 }
 
-function hasValidRef(config) {
-  if (hasOwnProperty.call(config, 'ref')) {
+function hasValidRef(config: Record<string, any>) {
+  if (window.hasOwnProperty.call(config, 'ref')) {
+    // @ts-ignore
     var getter = Object.getOwnPropertyDescriptor(config, 'ref').get
-
+    // @ts-ignore
     if (getter && getter.isReactWarning) {
       return false
     }

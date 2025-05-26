@@ -1,10 +1,10 @@
 import { beginWork } from './beginWork'
 import { commitRoot, flushPassiveEffects } from './commit'
 import { completeUnitOfWork } from './completeWork'
-import { createWorkInProgress } from './fiber'
+import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber'
 
-export function scheduleWork(fiber, expirationTime) {
-  var root = markUpdateTimeFromFiberToRoot(fiber, expirationTime)
+export function scheduleWork(fiber: FiberNode, expirationTime: number) {
+  const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime)
 
   if (expirationTime === Sync) {
     if (
@@ -21,13 +21,15 @@ export function scheduleWork(fiber, expirationTime) {
   }
 }
 
-export function ensureRootIsScheduled(root) {
-  var lastExpiredTime = root.lastExpiredTime
+export function ensureRootIsScheduled(root: FiberRootNode) {
+  const lastExpiredTime = root.lastExpiredTime
 
   if (lastExpiredTime !== NoWork) {
     root.callbackExpirationTime = Sync
     root.callbackPriority = ImmediatePriority
-    root.callbackNode = requestIdleCallback(performSyncWorkOnRoot.bind(null, root))
+    root.callbackNode = requestIdleCallback(
+      performSyncWorkOnRoot.bind(null, root),
+    )
     return
   }
 
@@ -39,62 +41,73 @@ export function ensureRootIsScheduled(root) {
       root.callbackExpirationTime = NoWork
       root.callbackPriority = NoPriority
     }
-
     return
   }
 
   if (root.callbackNode !== null) return
   root.callbackExpirationTime = expirationTime
-  root.callbackNode = scheduleSyncCallback(performSyncWorkOnRoot.bind(null, root))
+  root.callbackNode = scheduleSyncCallback(
+    performSyncWorkOnRoot.bind(null, root),
+  )
 }
 
-function performSyncWorkOnRoot(root) {
-  var lastExpiredTime = root.lastExpiredTime
-  var expirationTime = lastExpiredTime !== NoWork ? lastExpiredTime : Sync
+function performSyncWorkOnRoot(root: FiberRootNode) {
+  const lastExpiredTime = root.lastExpiredTime
+  let expirationTime = lastExpiredTime !== NoWork ? lastExpiredTime : Sync
 
   flushPassiveEffects()
-  if (root !== workInProgressRoot || expirationTime !== renderExpirationTime$1) {
+  if (
+    root !== workInProgressRoot ||
+    expirationTime !== renderExpirationTime$1
+  ) {
     prepareFreshStack(root, expirationTime)
   }
 
   if (workInProgress !== null) {
-    var prevExecutionContext = executionContext
+    const prevExecutionContext = executionContext
     executionContext |= RenderContext
     workLoopSync()
     executionContext = prevExecutionContext
-    root.finishedWork = root.current.alternate
+    root.finishedWork = root.current!.alternate
     root.finishedExpirationTime = expirationTime
     finishSyncRender(root)
   }
   return null
 }
 
-function prepareFreshStack(root, expirationTime) {
+function prepareFreshStack(root: FiberRootNode, expirationTime: number) {
   root.finishedWork = null
   workInProgressRoot = root
-  workInProgress = createWorkInProgress(root.current, root.current.pendingProps)
+  workInProgress = createWorkInProgress(
+    root.current!,
+    root.current!.pendingProps,
+  )
   renderExpirationTime$1 = expirationTime
 }
 
 function workLoopSync() {
-  while (workInProgress !== null) workInProgress = performUnitOfWork(workInProgress)
+  while (workInProgress !== null)
+    workInProgress = performUnitOfWork(workInProgress)
 }
 
-function performUnitOfWork(workInProgress) {
-  var current = workInProgress.alternate
-  var next = beginWork(current, workInProgress, renderExpirationTime$1)
+function performUnitOfWork(workInProgress: FiberNode) {
+  const current = workInProgress.alternate
+  var next = beginWork(current!, workInProgress, renderExpirationTime$1)
   workInProgress.memoizedProps = workInProgress.pendingProps
 
   if (next === null) next = completeUnitOfWork(workInProgress)
   return next
 }
 
-function finishSyncRender(root) {
+function finishSyncRender(root: FiberRootNode) {
   workInProgressRoot = null
   commitRoot(root)
 }
 
-function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
+function markUpdateTimeFromFiberToRoot(
+  fiber: FiberNode,
+  expirationTime: number,
+): FiberRootNode {
   if (fiber.expirationTime < expirationTime) {
     fiber.expirationTime = expirationTime
   }
@@ -106,10 +119,10 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
   }
 
   var node = fiber.return
-  var root = null
+  var root: FiberRootNode | null = null
 
   if (node === null && fiber.tag === HostRoot) {
-    root = fiber.stateNode
+    root = fiber.stateNode as FiberRootNode
   } else {
     while (node !== null) {
       alternate = node.alternate
@@ -117,15 +130,21 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
       if (node.childExpirationTime < expirationTime) {
         node.childExpirationTime = expirationTime
 
-        if (alternate !== null && alternate.childExpirationTime < expirationTime) {
+        if (
+          alternate !== null &&
+          alternate.childExpirationTime < expirationTime
+        ) {
           alternate.childExpirationTime = expirationTime
         }
-      } else if (alternate !== null && alternate.childExpirationTime < expirationTime) {
+      } else if (
+        alternate !== null &&
+        alternate.childExpirationTime < expirationTime
+      ) {
         alternate.childExpirationTime = expirationTime
       }
 
       if (node.return === null && node.tag === HostRoot) {
-        root = node.stateNode
+        root = node.stateNode as FiberRootNode
         break
       }
 
@@ -133,11 +152,11 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
     }
   }
 
-  return root
+  return root as FiberRootNode
 }
 
-function scheduleSyncCallback(callback) {
-  ;(syncQueue = syncQueue || []).push(callback)
+function scheduleSyncCallback(callback: Function) {
+  ;(syncQueue ||= []).push(callback)
   return fakeCallbackNode
 }
 

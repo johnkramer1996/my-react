@@ -1,10 +1,11 @@
-import { createFiberRoot } from './fiber'
+import { createFiberRoot, FiberNode, FiberRootNode } from './fiber'
+import { ReactElement } from './React'
 import { flushSyncCallbackQueue, scheduleWork } from './scheduleWork'
 import { createUpdate, enqueueUpdate } from './update'
 
-const rootContainerInstance = { current: null }
+const rootContainerInstance: { current: Element | null } = { current: null }
 
-export function render(children, container) {
+export function render(children: ReactElement, container: Element) {
   var root = createFiberRoot(container)
   rootContainerInstance.current = container
   unbatchedUpdates(() => updateContainer(children, root))
@@ -14,7 +15,7 @@ export function getRootHostContainer() {
   return rootContainerInstance.current
 }
 
-function unbatchedUpdates(fn) {
+function unbatchedUpdates(fn: Function) {
   var prevExecutionContext = executionContext
 
   executionContext &= ~BatchedContext
@@ -29,12 +30,13 @@ function unbatchedUpdates(fn) {
   }
 }
 
-function updateContainer(children, fiberRootNode) {
-  var fiberNode = fiberRootNode.current
-  var expirationTime = Sync
-  fiberNode.context = null
+function updateContainer(children: ReactElement, fiberRootNode: FiberRootNode) {
+  const fiberNode = fiberRootNode.current as FiberNode
+  const expirationTime = Sync
+  fiberRootNode.context = null
 
-  var update = createUpdate(expirationTime)
+  const update = createUpdate(expirationTime)
+  // @ts-ignore
   update.payload = {
     element: children,
   }

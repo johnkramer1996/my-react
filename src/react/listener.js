@@ -1,5 +1,8 @@
 import { internalEventHandlersKey, internalInstanceKey } from './instance'
-import { registrationNameDependencies, simpleEventPluginEventTypes } from './registrationName'
+import {
+  registrationNameDependencies,
+  simpleEventPluginEventTypes,
+} from './registrationName'
 import { flushSyncCallbackQueue } from './scheduleWork'
 
 export function ensureListeningTo(rootContainerElement, registrationName) {
@@ -68,7 +71,9 @@ function getClosestInstanceFromNode(targetNode) {
 
   var parentNode = targetNode.parentNode
   while (parentNode) {
-    targetInst = parentNode[internalContainerInstanceKey] || parentNode[internalInstanceKey]
+    targetInst =
+      parentNode[internalContainerInstanceKey] ||
+      parentNode[internalInstanceKey]
 
     if (targetInst) return targetInst
 
@@ -79,13 +84,23 @@ function getClosestInstanceFromNode(targetNode) {
   return null
 }
 
-function dispatchDiscreteEvent(topLevelType, eventSystemFlags, container, nativeEvent) {
+function dispatchDiscreteEvent(
+  topLevelType,
+  eventSystemFlags,
+  container,
+  nativeEvent,
+) {
   var nativeEventTarget = getEventTarget(nativeEvent)
   var targetInst = getClosestInstanceFromNode(nativeEventTarget)
-  if (!targetInst) return
+
+  if (!targetInst) {
+    return
+  }
 
   var registrationName =
-    simpleEventPluginEventTypes[nativeEvent.type].phasedRegistrationNames['bubbled']
+    simpleEventPluginEventTypes[nativeEvent.type].phasedRegistrationNames[
+      'bubbled'
+    ]
 
   var listener = getListener(targetInst, registrationName)
   if (!listener) return

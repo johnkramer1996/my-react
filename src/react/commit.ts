@@ -1,15 +1,18 @@
-import { detachFiber } from './fiber'
+import { detachFiber, FiberNode, FiberRootNode } from './fiber'
 import {
   appendChild,
   appendPlacementNode,
   getHostParentFiber,
+  getPublicInstance,
   removeChild,
+  resetTextContent,
   updateFiberProps,
   updateProperties,
 } from './instance'
+import { ReactType } from './React'
 import { ensureRootIsScheduled, flushSyncCallbackQueue } from './scheduleWork'
 
-export function commitRoot(root) {
+export function commitRoot(root: FiberRootNode) {
   var finishedWork = root.finishedWork
   var expirationTime = root.finishedExpirationTime
   if (finishedWork === null) return null
@@ -24,7 +27,7 @@ export function commitRoot(root) {
     renderExpirationTime$1 = NoWork
   }
 
-  var firstEffect
+  let firstEffect: FiberNode | null = null
   // ! если в рута есть еффекты то добавить
   if (finishedWork.effectTag > PerformedWork) {
     // ! если есль другие еффекты добавить в конец
@@ -93,11 +96,11 @@ function commitBeforeMutationEffects() {
 
 function commitMutationEffects() {
   while (nextEffect !== null) {
-    var effectTag = nextEffect.effectTag
+    const effectTag = nextEffect.effectTag
 
     if (effectTag & ContentReset) commitResetTextContent(nextEffect)
     if (effectTag & Ref) {
-      var current = nextEffect.alternate
+      const current = nextEffect.alternate
 
       if (current !== null) commitDetachRef(current)
     }
@@ -114,14 +117,14 @@ function commitMutationEffects() {
         commitPlacement(nextEffect)
         nextEffect.effectTag &= ~Placement
 
-        var _current = nextEffect.alternate
-        commitWork(_current, nextEffect)
+        const current = nextEffect.alternate
+        commitWork(current, nextEffect)
         break
       }
 
       case Update: {
-        var _current3 = nextEffect.alternate
-        commitWork(_current3, nextEffect)
+        var current = nextEffect.alternate
+        commitWork(current, nextEffect)
         break
       }
 
@@ -135,22 +138,26 @@ function commitMutationEffects() {
   }
 }
 
-function commitPlacement(finishedWork) {
+function commitPlacement(finishedWork: FiberNode) {
   var parentFiber = getHostParentFiber(finishedWork)
 
   var parentStateNode = parentFiber.stateNode
-  var parent = parentFiber.tag === HostRoot ? parentStateNode.containerInfo : parentStateNode
+  var parent =
+    parentFiber.tag === HostRoot
+      ? // @ts-ignore
+        parentStateNode.containerInfo
+      : parentStateNode
 
   appendPlacementNode(finishedWork, parent, appendChild)
 }
 
-function commitWork(current, finishedWork) {
-  switch (finishedWork.tag) {
+function commitWork(current: FiberNode | null, workInProgress: FiberNode) {
+  switch (workInProgress.tag) {
     case FunctionComponent:
     case ForwardRef:
     case MemoComponent:
     case SimpleMemoComponent: {
-      commitHookEffectListUnmount(Layout | HasEffect, finishedWork)
+      commitHookEffectListUnmount(Layout | HasEffect, workInProgress)
       return
     }
 
@@ -159,14 +166,14 @@ function commitWork(current, finishedWork) {
     }
 
     case HostComponent: {
-      var instance = finishedWork.stateNode
+      var instance = workInProgress.stateNode
 
       if (instance != null) {
-        var newProps = finishedWork.memoizedProps
+        var newProps = workInProgress.memoizedProps
         var oldProps = current !== null ? current.memoizedProps : newProps
-        var type = finishedWork.type
-        var updatePayload = finishedWork.updateQueue
-        finishedWork.updateQueue = null
+        var type = workInProgress.type
+        var updatePayload = workInProgress.updateQueue
+        workInProgress.updateQueue = null
 
         if (updatePayload !== null) {
           commitUpdate(instance, updatePayload, type, oldProps, newProps)
@@ -177,8 +184,8 @@ function commitWork(current, finishedWork) {
     }
 
     case HostText: {
-      var textInstance = finishedWork.stateNode
-      var newText = finishedWork.memoizedProps
+      const textInstance = workInProgress.stateNode as Element
+      var newText = workInProgress.memoizedProps
       commitTextUpdate(textInstance, newText)
       return
     }
@@ -335,7 +342,7 @@ function commitLifeCycles(current, finishedWork) {
   }
 }
 
-function commitPassiveHookEffects(finishedWork) {
+function commitPassiveHookEffects(finishedWork: FiberNode) {
   if ((finishedWork.effectTag & Passive) !== NoEffect) {
     switch (finishedWork.tag) {
       case FunctionComponent:
@@ -349,7 +356,7 @@ function commitPassiveHookEffects(finishedWork) {
   }
 }
 
-function commitHookEffectListUnmount(tag, finishedWork) {
+function commitHookEffectListUnmount(tag: number, finishedWork: FiberNode) {
   var updateQueue = finishedWork.updateQueue
   var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null
 
@@ -369,7 +376,7 @@ function commitHookEffectListUnmount(tag, finishedWork) {
   }
 }
 
-function commitHookEffectListMount(tag, finishedWork) {
+function commitHookEffectListMount(tag: number, finishedWork: FiberNode) {
   var updateQueue = finishedWork.updateQueue
   var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null
 
@@ -400,19 +407,24 @@ function commitUpdateQueue(finishedWork, finishedQueue, instance) {
       if (callback !== null) {
         effect.callback = null
         //!! TODO callback???
-        callCallback(callback, instance)
+        debugger
+        // callCallback(callback, instance)
       }
     }
   }
 }
 
-function commitMount(domElement, type, newProps) {}
+function commitMount(
+  domElement: Element,
+  type: ReactType,
+  newProps: Record<string, any>,
+) {}
 
-function commitAttachRef(finishedWork) {
+function commitAttachRef(finishedWork: FiberNode) {
   var ref = finishedWork.ref
   if (ref == null) return
-  var instance = finishedWork.stateNode
-  var instanceToUse
+  let instance = finishedWork.stateNode
+  let instanceToUse: FiberRootNode | Element | null = null
   switch (finishedWork.tag) {
     case HostComponent:
       instanceToUse = getPublicInstance(instance)
@@ -424,39 +436,41 @@ function commitAttachRef(finishedWork) {
   else ref.current = instanceToUse
 }
 
-function commitDetachRef(current) {
+function commitDetachRef(current: FiberNode) {
   var currentRef = current.ref
   if (currentRef === null) return
   if (typeof currentRef === 'function') currentRef(null)
   else currentRef.current = null
 }
 
-function commitTextUpdate(textInstance, newText) {
+function commitTextUpdate(textInstance: Element, newText: string) {
   textInstance.nodeValue = newText
 }
 
-function commitResetTextContent(current) {
+function commitResetTextContent(current: FiberNode) {
   resetTextContent(current.stateNode)
 }
 
 export function flushPassiveEffects() {
-  if (rootWithPendingPassiveEffects === null) return false
+  if (rootWithPendingPassiveEffects === null) {
+    return false
+  }
 
-  var root = rootWithPendingPassiveEffects
+  const root = rootWithPendingPassiveEffects
   rootWithPendingPassiveEffects = null
 
-  var prevExecutionContext = executionContext
+  const prevExecutionContext = executionContext
   executionContext |= CommitContext
 
-  var _effect2 = root.current.firstEffect
+  let effect = root.current!.firstEffect
 
-  while (_effect2 !== null) {
-    commitPassiveHookEffects(_effect2)
+  while (effect !== null) {
+    commitPassiveHookEffects(effect)
 
-    var nextNextEffect = _effect2.nextEffect
+    const nextNextEffect = effect.nextEffect
 
-    _effect2.nextEffect = null
-    _effect2 = nextNextEffect
+    effect.nextEffect = null
+    effect = nextNextEffect
   }
 
   executionContext = prevExecutionContext
@@ -464,13 +478,13 @@ export function flushPassiveEffects() {
   return true
 }
 
-function commitUnmount(current$$1) {
-  switch (current$$1.tag) {
+function commitUnmount(currentFiber: FiberNode) {
+  switch (currentFiber.tag) {
     case FunctionComponent:
     case ForwardRef:
     case MemoComponent:
     case SimpleMemoComponent: {
-      var updateQueue = current$$1.updateQueue
+      var updateQueue = currentFiber.updateQueue
       if (updateQueue !== null) {
         var lastEffect = updateQueue.lastEffect
         if (lastEffect !== null) {
@@ -488,11 +502,11 @@ function commitUnmount(current$$1) {
       break
     }
     case ClassComponent: {
-      safelyDetachRef(current$$1)
+      // safelyDetachRef(current$$1)
       return
     }
     case HostComponent: {
-      safelyDetachRef(current$$1)
+      // safelyDetachRef(current$$1)
       return
     }
   }
